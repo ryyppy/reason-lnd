@@ -8,19 +8,28 @@ let getPort =
   with
   | Failure _ | Not_found -> 8000
 
-let saveRoute =
-  Server.respond_string ~status:`OK ~body:"/save route" ()
-
-let loadRoute =
-  Server.respond_string ~status:`OK ~body:"/load route" ()
+(* Retrieves the last portion of a path e.g. some:8000/user -> user *)
+let retrievePath req =
+  let path = req
+             |> Request.uri
+             |> Uri.path
+             |> String.split_on_char '/'
+             |> List.tl in
+  match path with
+    | [name] -> Some name
+    | _ -> None
 
 let handleGet req =
-  let path = req |> Request.uri |> Uri.path |> String.split_on_char '/' |> List.tl in
-  match path with
-  | [""] -> Server.respond_not_found ()
-  | [name] -> (match name with
-    | "save" -> saveRoute
-    | "load" -> loadRoute
+  match retrievePath req with
+  | Some p -> (match p with
+    | "load" -> Routes.loadRoute
+    | _ -> Server.respond_not_found ())
+  | _ -> Server.respond_not_found ()
+
+let handlePost req =
+  match retrievePath req with
+  | Some p -> (match p with
+    | "save" -> Routes.saveRoute
     | _ -> Server.respond_not_found ())
   | _ -> Server.respond_not_found ()
 
