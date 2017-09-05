@@ -42,7 +42,28 @@ On existing TicTacToe state:
 
 ```
 Status: 200
-Body: <TBH>
+Accept: json/application
+
+Body:
+{
+  "board": [
+    ["x", "o", "empty"],
+    ["x", "o", "empty"],
+    ["x", "o", "empty"],
+  ],
+
+  // case 1
+  "game": ["Turn", "x"]
+
+  // case 2
+  "game": ["Turn", "o"]
+
+  // case 3
+  "game": ["Win", "o"]
+
+  // case 4
+  "game": ["Draw"]
+}
 ```
 
 On non-existing TicTacToe state:
