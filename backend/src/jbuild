@@ -1,0 +1,9 @@
+(jbuild_version 1)
+
+(executable
+ ((name main)
+  (libraries (core async str yojson cohttp cohttp-lwt))))
+
+(install
+  ((section bin)
+    (files ((main.exe as server)))))
