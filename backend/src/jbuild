@@ -2,8 +2,5 @@
 
 (executable
  ((name main)
-  (libraries (core async str yojson cohttp cohttp-lwt))))
-
-(install
-  ((section bin)
-    (files ((main.exe as server)))))
+  (public_name server)
+  (libraries (core async str yojson cohttp cohttp-lwt cohttp-lwt-unix))))
