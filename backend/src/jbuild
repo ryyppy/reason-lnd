@@ -1,6 +1,6 @@
 (jbuild_version 1)
 
-(executable
- ((name main)
-  (public_name server)
-  (libraries (core async str yojson cohttp cohttp-lwt cohttp-lwt-unix))))
+(executables
+ ((names (main test))
+  (public_names (server test))
+  (libraries (core async str atdgen yojson cohttp cohttp-lwt cohttp-lwt-unix))))
