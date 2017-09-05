@@ -7,16 +7,20 @@ let crossSvg = "M1490 1322q0 40-28 68l-136 136q-28 28-68 28t-68-28l-294-294-294 
 
 let circleSvg = "M896 352q-148 0-273 73t-198 198-73 273 73 273 198 198 273 73 273-73 198-198 73-273-73-273-198-198-273-73zm768 544q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z";
 
-module Square = {
-  include ReactRe.Component;
-  type props = {value: token, handleClick: ReactEventRe.Mouse.t => unit};
-  let name = "Square";
-  let squareStyle =
-    ReactDOMRe.Style.make width::"25px" backgroundColor::"blue" fontSize::"100pt" ();
-  let render {props} =>
-    <span style=squareStyle onClick=props.handleClick>
+type props = {value: token, handleClick: ReactEventRe.Mouse.t => unit};
+
+let component = ReasonReact.statelessComponent "Square";
+
+let name = "Square";
+let squareStyle =
+  ReactDOMRe.Style.make width::"25px" backgroundColor::"blue" fontSize::"100pt" ();
+
+let make ::value ::handleClick _children => {
+  ...component,
+  render: fun _self =>
+    <span style=squareStyle onClick=handleClick>
       (
-        switch props.value {
+        switch value {
         | Cross =>
           <svg width="200" height="200" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
             <path d=crossSvg />
@@ -31,9 +35,5 @@ module Square = {
           </svg>
         }
       )
-    </span>;
+    </span>
 };
-
-include ReactRe.CreateComponent Square;
-
-let createElement ::value ::handleClick => wrapProps {value, handleClick};
