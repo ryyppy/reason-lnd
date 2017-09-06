@@ -1,22 +1,18 @@
-/* let namespace = "reason-react-tictactoe"; */
-
 open Game;
+
+type status = {rows: (row, row, row), player: playerState, game: gameState};
 
 type action =
   | PlayTurn (rowSelection, colSelection)
   | Restart;
 
-type state = {rows: (row, row, row), player: playerState, game: gameState};
+type state = {
+  rows: (row, row, row),
+  player: playerState,
+  game: gameState
+};
 
 let component = ReasonReact.reducerComponent "TicTacToe";
-
-/*
-
-<MyDialog
-        onClick=(self.reduce (fun _event => Click))
-        onSubmit=(self.reduce (fun _event => Toggle)) />
-*/
-
 
 let se = ReasonReact.stringToElement;
 
@@ -51,9 +47,17 @@ let renderCurrentPlayer player =>
     (se ("Player: " ^ player_to_string player))
   </div>;
 
-let make _ => {
+let make ::rows=? ::player=? _children => {
   ...component,
-  initialState,
+  initialState: fun () => {
+    let init = initialState ();
+    switch (rows, player) {
+      | (Some rows, Some player) => {...init, rows, player}
+      | (Some rows, None)  => {...init, rows}
+      | (None, Some player)  => {...init, player}
+      | (None, None) => init
+    };
+  },
   reducer: fun action state => {
     switch action {
       | PlayTurn s => ReasonReact.Update (playTurn state s)
@@ -72,5 +76,4 @@ let make _ => {
       }
     )
   </div>
-
 };

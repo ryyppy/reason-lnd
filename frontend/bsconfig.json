@@ -6,7 +6,11 @@
   "name" : "frontend",
   "reason" : {"react-jsx" : 2},
   "bsc-flags": ["-bs-super-errors"],
-  "bs-dependencies": ["reason-react", "bs-fetch"],
+  "bs-dependencies": [
+    "reason-react",
+    "bs-fetch",
+    "bs-json"
+  ],
   "sources": [
     {
       "dir": "src",

@@ -180,6 +180,10 @@ bs-fetch@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/bs-fetch/-/bs-fetch-0.1.1.tgz#1bee13786813eeee697c48959c008bc08ed8210a"
 
+bs-json@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/bs-json/-/bs-json-0.2.1.tgz#b30bd33405a1694cd1cd78e927d10cfa93b80a0a"
+
 bs-platform@^1.9.1:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-1.9.1.tgz#1195562f0f8b131cc758693e7c9b31d7e0022001"

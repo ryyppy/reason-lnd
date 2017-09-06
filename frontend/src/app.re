@@ -1,1 +1,1 @@
-ReactDOMRe.renderToElementWithId <Tictactoe /> "index";
+ReactDOMRe.renderToElementWithId <Loader /> "index";
