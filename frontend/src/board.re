@@ -1,6 +1,9 @@
 open Game;
 
-type props = {rows: (row, row, row), handleSquareClick: (rowSelection, colSelection) => unit};
+type props = {
+  rows: (row, row, row),
+  handleSquareClick: selection => unit
+};
 
 let component = ReasonReact.statelessComponent "Board";
 
