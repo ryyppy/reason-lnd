@@ -3,26 +3,33 @@ type token =
   | Cross
   | Empty;
 
-type playerState =
+type player =
   | CirclePlayer
   | CrossPlayer;
 
-type gameState =
-  | Running
-  | Win playerState
+type progress =
+  | Turn player
+  | Win player
   | Draw;
 
-type colSelection =
+type colId =
   | C1
   | C2
   | C3;
 
-type rowSelection =
+type rowId =
   | R1
   | R2
   | R3;
 
 type row = (token, token, token);
+
+type selection = (rowId, colId);
+
+type ticTacToeState = {
+  board: (row, row, row),
+  progress
+};
 
 let row_to_string rid =>
   switch rid {
@@ -43,7 +50,7 @@ let playerToken player =>
   | CrossPlayer => Cross
   };
 
-let switchPlayer (current: playerState) =>
+let switchPlayer (current: player) =>
   switch current {
   | CirclePlayer => CrossPlayer
   | CrossPlayer => CirclePlayer
@@ -55,32 +62,32 @@ let isEmptyToken (square: token) =>
   | _ => false
   };
 
-let updateColumn row column value => {
-  let (t1, t2, t3) = row;
-  switch column {
-  | C1 => isEmptyToken t1 ? (value, t2, t3) : row
-  | C2 => isEmptyToken t2 ? (t1, value, t3) : row
-  | C3 => isEmptyToken t3 ? (t1, t2, value) : row
+let updateColumn rid cid value => {
+  let (t1, t2, t3) = rid;
+  switch cid {
+  | C1 => isEmptyToken t1 ? (value, t2, t3) : rid
+  | C2 => isEmptyToken t2 ? (t1, value, t3) : rid
+  | C3 => isEmptyToken t3 ? (t1, t2, value) : rid
   }
 };
 
-let updateRow rows row column value => {
-  let (r1, r2, r3) = rows;
-  switch row {
+let updateRow board rid cid value => {
+  let (r1, r2, r3) = board;
+  switch rid {
   | R1 =>
-    let r = updateColumn r1 column value;
+    let r = updateColumn r1 cid value;
     (r, r2, r3)
   | R2 =>
-    let r = updateColumn r2 column value;
+    let r = updateColumn r2 cid value;
     (r1, r, r3)
   | R3 =>
-    let r = updateColumn r3 column value;
+    let r = updateColumn r3 cid value;
     (r1, r2, r)
   }
 };
 
-let getToken rows rid cid => {
-  let (r1, r2, r3) = rows;
+let getToken board rid cid => {
+  let (r1, r2, r3) = board;
   let fromRow (t1, t2, t3) cid =>
     switch cid {
     | C1 => t1
@@ -94,33 +101,42 @@ let getToken rows rid cid => {
   }
 };
 
-let isValidTurn rows rid cid => getToken rows rid cid == Empty;
+let isCellEmpty board rid cid => getToken board rid cid == Empty;
 
-let isDraw rows => {
-  let ((t1, t2, t3), (t4, t5, t6), (t7, t8, t9)) = rows;
+let isDraw board => {
+  let ((t1, t2, t3), (t4, t5, t6), (t7, t8, t9)) = board;
   List.for_all (fun t => t != Empty) [t1, t2, t3, t4, t5, t6, t7, t8, t9]
 };
 
-let winOrDraw rows player => {
-  let playerToken = playerToken player;
-  let isFull (t1, t2, t3) => t1 == playerToken && t2 == playerToken && t3 == playerToken;
-  let (r1, r2, r3) = rows;
-  let ((t1, t2, t3), (t4, t5, t6), (t7, t8, t9)) = rows;
-  let horizontal () => isFull r1 || isFull r2 || isFull r3;
-  Js.log (isFull (t1, t5, t7));
-  let vertical () => isFull (t1, t4, t7) || isFull (t2, t5, t8) || isFull (t3, t6, t9);
-  let diagonal () => isFull (t1, t5, t9) || isFull (t3, t5, t7);
-  if (horizontal () || vertical () || diagonal ()) {
-    Win player
-  } else if (isDraw rows) {
-    Draw
+let processTurn (state: ticTacToeState) (select: selection) player => {
+  let (rid, cid) = select;
+
+  if (isCellEmpty state.board rid cid) {
+    let board = updateRow state.board rid cid (playerToken player);
+    let progress = {
+      let playerToken = playerToken player;
+      let isFull (t1, t2, t3) => t1 == playerToken && t2 == playerToken && t3 == playerToken;
+      let (r1, r2, r3) = board;
+      let ((t1, t2, t3), (t4, t5, t6), (t7, t8, t9)) = board;
+      let horizontal () => isFull r1 || isFull r2 || isFull r3;
+      let vertical () => isFull (t1, t4, t7) || isFull (t2, t5, t8) || isFull (t3, t6, t9);
+      let diagonal () => isFull (t1, t5, t9) || isFull (t3, t5, t7);
+      if (horizontal () || vertical () || diagonal ()) {
+        Win player
+      } else if (isDraw board) {
+        Draw
+      } else {
+        Turn (switchPlayer player)
+      }
+    };
+    {board, progress}
   } else {
-    Running
+    state
   }
 };
 
-let updateGame game rows player =>
-  switch game {
-  | Running => winOrDraw rows player
-  | _ => game
+let playTurn state select =>
+  switch state.progress {
+  | Turn player => processTurn state select player
+  | _ => state
   };
