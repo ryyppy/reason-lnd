@@ -8,17 +8,7 @@ type state = ticTacToeState;
 
 let component = ReasonReact.reducerComponent "TicTacToe";
 
-/*
- <MyDialog
-         onClick=(self.reduce (fun _event => Click))
-         onSubmit=(self.reduce (fun _event => Toggle)) />
- */
 let se = ReasonReact.stringToElement;
-
-let initialState () => {
-  board: ((Empty, Empty, Empty), (Empty, Empty, Empty), (Empty, Empty, Empty)),
-  progress: Turn CirclePlayer
-};
 
 let renderWin player restartClick =>
   <div>

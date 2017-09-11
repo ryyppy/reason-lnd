@@ -31,6 +31,11 @@ type ticTacToeState = {
   progress
 };
 
+let initialState () => {
+  board: ((Empty, Empty, Empty), (Empty, Empty, Empty), (Empty, Empty, Empty)),
+  progress: Turn CirclePlayer
+};
+
 let row_to_string rid =>
   switch rid {
   | R1 => "r1"

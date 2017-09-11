@@ -1,5 +1,13 @@
 open Game;
 
+exception MalformedData string;
+
+type remoteData =
+  | NotAsked
+  | Loading
+  | Error string
+  | Success Game.ticTacToeState;
+
 type data = {
   board: array (array string),
   progress: array string
@@ -18,23 +26,36 @@ let parseRow row =>
   | _ => (Empty, Empty, Empty)
   };
 
-let parseRows rows =>
-  switch rows {
+let parseBoard board =>
+  switch board {
   | [|r1, r2, r3|] => (parseRow r1, parseRow r2, parseRow r3)
   | _ => ((Empty, Empty, Empty), (Empty, Empty, Empty), (Empty, Empty, Empty))
   };
 
-/* let parsePlayer [|_, player|] => */
-/*   switch player { */
-/*     | "o" => CirclePlayer */
-/*     | "x" => CrossPlayer */
-/*     | _ => CirclePlayer */
-/*   }; */
-/* mock this for now */
-let parseProgress _input => Turn CirclePlayer;
+let parsePlayer p =>
+  switch p {
+  | "o" => CirclePlayer
+  | "x" => CrossPlayer
+  | _ => CirclePlayer
+  };
 
-let convertData: data => ticTacToeState =
-  fun {board, progress} => {board: parseRows board, progress: parseProgress progress};
+/* mock this for now */
+let parseProgress arr =>
+  switch arr {
+  | [||] => raise (MalformedData "Progress doesn't contain any data")
+  | [|"Draw"|] => Draw
+  | [|"Turn", p|] => Turn (parsePlayer p)
+  | [|"Win", p|] => Win (parsePlayer p)
+  | rest =>
+    raise (
+      MalformedData ("Could not parse progress: [" ^ String.concat "," (Array.to_list rest) ^ "]")
+    )
+  };
+
+let convertData {board, progress} :ticTacToeState => {
+  board: parseBoard board,
+  progress: parseProgress progress
+};
 
 let parseGameJson json =>
   Json.Decode.{
@@ -42,16 +63,34 @@ let parseGameJson json =>
     progress: field "progress" (array string) json
   };
 
+let handleFailure =
+  (
+    fun
+    | MalformedData str => str
+  )
+  [@bs.open];
+
 let fetchData _ =>
-  parseGameJson (
-    Js.Json.parseExn {js|
-      {
-        "board": [
-          ["x", "o", "empty"],
-          ["x", "o", "empty"],
-          ["x", "empty", "o"]
-        ],
-        "progress": ["Turn", "x"]
-      }
-    |js}
-  ) |> convertData;
+  Js.Promise.(
+    make (
+      fun ::resolve ::reject =>
+        try (
+          parseGameJson (
+            Js.Json.parseExn {js|
+                  {
+                    "board": [
+                      ["x", "o", "empty"],
+                      ["x", "o", "empty"],
+                      ["x", "empty", "o"]
+                    ],
+                    "progress": ["Tun", "x"]
+                  }
+                |js}
+          ) |> convertData |> (
+            fun data => resolve data [@bs]
+          )
+        ) {
+        | ex => reject ex [@bs]
+        }
+    )
+  );
