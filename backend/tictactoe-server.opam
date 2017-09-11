@@ -5,4 +5,4 @@ maintainer: "Patrick Stapfer <p.stapfer@gmail.com>"
 author: "Patrick Stapfer <p.stapfer@gmail.com>"
 build: [make]
 install: [make "install"]
-remove: [make "distclean"]
+remove: [make "clean"]

@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "bsb -make-world -w",
     "build": "bsb -make-world",
-    "webpack": "webpack -w",
+    "webpack": "webpack",
+    "webpack:watch": "webpack -w",
     "clean": "bsb -clean-world"
   },
   "keywords": [],
