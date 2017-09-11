@@ -16,7 +16,7 @@ type game =
   | Win of player
   | Draw
 
-type state = {
+type t = {
   board: board;
   game: game;
 }
@@ -60,3 +60,17 @@ let json_of_state state =
     ("board", (json_of_board state.board));
     ("game", (json_of_game state.game))
   ]
+
+let serializeState state =
+  Yojson.to_string (json_of_state state)
+
+let initialState =
+  let emptyRow = (Empty, Empty, Empty) in
+
+  {
+    board = (emptyRow, emptyRow, emptyRow);
+    game = Turn X
+  }
+
+(* OH! what is this? Mutable global state? Gee, we all gonna die~~ *)
+let currentState: t ref = ref initialState;;

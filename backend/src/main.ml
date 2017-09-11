@@ -1,46 +1,44 @@
-open Lwt
-open Cohttp
-open Cohttp_lwt_unix
+open Opium.Std
 
 let getPort =
-  try
-    int_of_string (Sys.getenv "PORT")
-  with
-  | Failure _ | Not_found -> 8000
+  try int_of_string (Sys.getenv "PORT") with | Failure _ | Not_found -> 8000
 
-(* Retrieves the last portion of a path e.g. some:8000/user -> user *)
-let retrievePath req =
-  let path = req
-             |> Request.uri
-             |> Uri.path
-             |> String.split_on_char '/'
-             |> List.tl in
-  match path with
-    | [name] -> Some name
-    | _ -> None
+let headers =
+  Cohttp.Header.init_with "Content-Type" "application/json"
 
-let handleGet req =
-  match retrievePath req with
-  | Some p -> (match p with
-    | "load" -> Routes.loadRoute
-    | _ -> Server.respond_not_found ())
-  | _ -> Server.respond_not_found ()
+let status_route =
+  get "/status"
+  (fun req -> `String "Hi, I am up and running!" |> respond')
 
-let handlePost req =
-  match retrievePath req with
-  | Some p -> (match p with
-    | "save" -> Routes.saveRoute
-    | _ -> Server.respond_not_found ())
-  | _ -> Server.respond_not_found ()
+let load_route =
+  get "/load"
+  (fun req -> `String (State.serializeState !State.currentState) |> respond' ~headers)
 
-let server port =
-  let callback _conn req body =
-    let meth = (req |> Request.meth) in
-    match meth with
-    | `GET -> req |> handleGet
-    | _ -> Server.respond_error ~status:`Method_not_allowed ~body:(Code.string_of_method meth) ()
-   in
-   Server.create ~mode:(`TCP (`Port port)) (Server.make ~callback ())
+let staticPublic =
+  Middleware.static
+    ~local_path:"../frontend/public"
+    ~uri_prefix:"/public"
 
-let () = ignore (Lwt_main.run (server getPort))
+let staticJsAssets =
+  Middleware.static
+    ~local_path:"../frontend/bundledOutputs"
+    ~uri_prefix:"/public"
+
+let _ =
+  let port = getPort in
+  let app = App.empty
+  |> App.port port
+  |> middleware staticPublic
+  |> middleware staticJsAssets
+  |> status_route
+  |> load_route
+  |> App.run_command' in
+  match app with
+  | `Ok a ->
+      print_endline ("Server is running on port " ^ (string_of_int port));
+      Lwt_main.run a
+  | `Error ->
+      print_endline "Server could not be started";
+      exit 1
+  | `Not_running -> exit 0
 

@@ -13,7 +13,7 @@ Current goal(s) of this project:
 
 ```sh
 opam switch install 4.04.0
-opam install jbuilder core yojson ssl tls cohttp async cohttp-lwt cohttp-lwt-unix lwt_ssl
+opam install jbuilder core yojson ssl tls cohttp async cohttp-lwt cohttp-lwt-unix lwt_ssl opium
 
 # Builds the project and creates the server executable
 make build

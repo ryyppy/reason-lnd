@@ -1,3 +1,7 @@
+sources := \
+	src/jbuild \
+	$(wildcard src/*.ml)
+
 executable := \
 	_build/install/default/bin/server
 
