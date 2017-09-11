@@ -1,5 +1,7 @@
 open Game;
 
+open Bs_fetch;
+
 exception MalformedData string;
 
 type remoteData =
@@ -57,8 +59,8 @@ let convertData {board, progress} :ticTacToeState => {
   progress: parseProgress progress
 };
 
-let parseGameJsonExn body =>
-  Js.Json.parseExn body |> (
+let parseGameJsonExn text =>
+  Js.Json.parseExn text |> (
     fun json =>
       Json.Decode.{
         board: field "board" (array (array string)) json,
@@ -86,10 +88,11 @@ let mockBody = {js|
 
 let fetchData _ =>
   Js.Promise.(
-    make (
-      fun ::resolve ::reject =>
-        try (parseGameJsonExn mockBody |> (fun data => resolve data [@bs])) {
-        | ex => reject ex [@bs]
+    fetch "/load" |> then_ Response.text |>
+    then_ (
+      fun text =>
+        try (parseGameJsonExn text |> resolve) {
+        | ex => reject ex
         }
     )
   );

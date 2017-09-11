@@ -11,14 +11,14 @@ type player =
   | O
   | X
 
-type game =
+type progress =
   | Turn of player
   | Win of player
   | Draw
 
 type t = {
   board: board;
-  game: game;
+  progress: progress;
 }
 
 let json_of_token (token: token) =
@@ -48,8 +48,8 @@ let json_of_player player =
   | O -> `String "o"
   | X -> `String "x"
 
-let json_of_game game =
-  match game with
+let json_of_progress progress =
+  match progress with
   | Turn player -> `List [ `String "Turn"; json_of_player player ]
   | Win player -> `List [ `String "Win"; json_of_player player ]
   | Draw -> `List [ `String "Draw" ]
@@ -58,7 +58,7 @@ let json_of_game game =
 let json_of_state state =
   `Assoc [
     ("board", (json_of_board state.board));
-    ("game", (json_of_game state.game))
+    ("progress", (json_of_progress state.progress))
   ]
 
 let serializeState state =
@@ -69,7 +69,7 @@ let initialState =
 
   {
     board = (emptyRow, emptyRow, emptyRow);
-    game = Turn X
+    progress = Turn X
   }
 
 (* OH! what is this? Mutable global state? Gee, we all gonna die~~ *)

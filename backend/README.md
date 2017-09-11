@@ -53,16 +53,16 @@ Body:
   ],
 
   // case 1
-  "game": ["Turn", "x"]
+  "progress": ["Turn", "x"]
 
   // case 2
-  "game": ["Turn", "o"]
+  "progress": ["Turn", "o"]
 
   // case 3
-  "game": ["Win", "o"]
+  "progress": ["Win", "o"]
 
   // case 4
-  "game": ["Draw"]
+  "progress": ["Draw"]
 }
 ```
 
