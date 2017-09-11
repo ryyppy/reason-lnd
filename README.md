@@ -5,6 +5,6 @@ ReasonML-based frontend.
 
 ## Instructions 
 
-- Build the frontend as in structed in [./frontend/README.md]
-- Build the server as instructed in [./backend/README.md]
+- Build the frontend as in structed in [frontend/README.md](./frontend/README.md)
+- Build the server as instructed in [backend/README.md](./backend/README.md)
 - Run `localhost:8000/public/index.html` to run the application
