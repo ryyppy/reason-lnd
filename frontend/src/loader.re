@@ -11,14 +11,6 @@ type action =
 
 let component = ReasonReact.reducerComponent "Loader";
 
-/* let foo self => { */
-/* Js.Promise.( */
-/*   Fetch.fetchData () |> */
-/*   then_ (fun data => (self.reduce (fun () => Finished data)) () |> resolve) |> */
-/*   catch (fun err => () |> resolve) |> ignore */
-/* ); */
-/* }; */
-
 let make _ => {
   ...component,
   initialState: fun () => NotAsked,

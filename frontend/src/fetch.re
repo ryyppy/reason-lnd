@@ -57,11 +57,14 @@ let convertData {board, progress} :ticTacToeState => {
   progress: parseProgress progress
 };
 
-let parseGameJson json =>
-  Json.Decode.{
-    board: field "board" (array (array string)) json,
-    progress: field "progress" (array string) json
-  };
+let parseGameJsonExn body =>
+  Js.Json.parseExn body |> (
+    fun json =>
+      Json.Decode.{
+        board: field "board" (array (array string)) json,
+        progress: field "progress" (array string) json
+      }
+  ) |> convertData;
 
 let handleFailure =
   (
@@ -70,26 +73,22 @@ let handleFailure =
   )
   [@bs.open];
 
+let mockBody = {js|
+      {
+        "board": [
+          ["x", "o", "empty"],
+          ["x", "o", "empty"],
+          ["x", "empty", "o"]
+        ],
+        "progress": ["Turn", "x"]
+      }
+   |js};
+
 let fetchData _ =>
   Js.Promise.(
     make (
       fun ::resolve ::reject =>
-        try (
-          parseGameJson (
-            Js.Json.parseExn {js|
-                  {
-                    "board": [
-                      ["x", "o", "empty"],
-                      ["x", "o", "empty"],
-                      ["x", "empty", "o"]
-                    ],
-                    "progress": ["Tun", "x"]
-                  }
-                |js}
-          ) |> convertData |> (
-            fun data => resolve data [@bs]
-          )
-        ) {
+        try (parseGameJsonExn mockBody |> (fun data => resolve data [@bs])) {
         | ex => reject ex [@bs]
         }
     )
